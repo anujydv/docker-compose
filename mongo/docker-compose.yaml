@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  mongo:
+    image: mongo:4.4.18
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root        
+      MONGO_INITDB_ROOT_PASSWORD: admin     
+    ports:
+      - "27017:27017"                         
+    volumes:
+      - /tmp/mongo_data:/data/db              
+    networks:
+      - mongo-network
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: root
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root   
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+      ME_CONFIG_MONGODB_SERVER: mongo
+    ports:
+      - "127.0.0.1:8081:8081"
+    depends_on:
+      - mongo
+    networks:
+      - mongo-network
+
+networks:
+  mongo-network:
+    driver: bridge                            
