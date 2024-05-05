@@ -1,43 +1,36 @@
 version: "3.7"
+
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0 
     container_name: elasticsearch
-    restart: always
     environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    cap_add:
-      - IPC_LOCK
+      - discovery.type=single-node 
+      - xpack.security.enabled=false 
     volumes:
-      - ./elasticsearch-data:/usr/share/elasticsearch/data
+      - elasticsearch-data:/usr/share/elasticsearch/data 
     ports:
-      - 9200:9200
+      - "9200:9200" 
+      - "9300:9300" 
     networks:
-      - elk-network
-    user: "1000:1000"  # Replace this with your desired UID:GID
+      - elk
 
   kibana:
+    image: docker.elastic.co/kibana/kibana:7.14.0 
     container_name: kibana
-    image: docker.elastic.co/kibana/kibana:7.4.0
-    restart: always
     environment:
-      - ELASTICSEARCH_HOSTS=http://localhost:9200  # Use the service name for inter-container communication
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200 
     ports:
-      - 5601:5601
+      - "5601:5601" 
     depends_on:
       - elasticsearch
     networks:
-      - elk-network
-    user: "1000:1000"  # Replace this with your desired UID:GID
+      - elk
+
+volumes:
+  elasticsearch-data: 
+    driver: local
 
 networks:
-  elk-network:
+  elk: 
     driver: bridge
